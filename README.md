@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Project Overview
 
-## Getting Started
+Proverbs Chat is a Christian AI chatbot built using Next.js and OpenAI's GPT-4o-mini model. It provides empathetic, biblically grounded responses to questions about Christianity, faith, and life. The chatbot is designed to offer concise and conversational answers while maintaining a warm and respectful tone.
 
-First, run the development server:
+## See The Project
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Visit: ___
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Frontend
+- **Next.js**
+- **Tailwind CSS**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Backend
+- **Next.js API Routes**
+- **TypeScript**
 
-## Learn More
+### AI Integration
+- **OpenAI SDK**
 
-To learn more about Next.js, take a look at the following resources:
+## Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Christian AI Chatbot**: Provides biblically grounded wisdom in a conversational tone.
+- **Empathetic Responses**: Designed to sound warm and human-like, avoiding robotic or overly formal language.
+- **Scripture Integration**: Uses Bible verses selectively to strengthen responses.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Future Features
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Import pictures for the AI model to analyze and give a response, more specifically in the context of uploading a bible verse
+- Integrate PostgreSQL database to store all responses to view history of chat messages
+- UI features (dark/light mode, customization, etc.)
