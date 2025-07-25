@@ -1,8 +1,32 @@
 @import "tailwindcss";
 
+
+@theme {
+  --color-navgray: var(--navgray);
+  --color-textcolor: var(--textcolor);
+  --color-bordercolor: var(--bordercolor);
+  --color-textboxcolor: var(--textboxcolor);
+  --color-background: var(--background);
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* custom colors */
+  --navgray: #181818;
+  --textcolor: #1e1e1e;
+  --bordercolor: rgb(68, 67, 67);
+  --textboxcolor: rgb(50, 50, 50);
+  --background: #212121;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;     
 }
 
 @theme inline {
@@ -14,7 +38,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #212121;
     --foreground: #ededed;
   }
 }
