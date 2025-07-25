@@ -23,6 +23,8 @@ proverbs-chat/
 ├── next.config.js   # Next.js configuration
 └── tsconfig.json    # TypeScript configuration
 
+```
+
 ## Tech Stack
 
 - **Frontend**: Next.js, Tailwind
