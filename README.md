@@ -8,16 +8,9 @@ Visit: ___
 
 ## Tech Stack
 
-### Frontend
-- **Next.js**
-- **Tailwind CSS**
-
-### Backend
-- **Next.js API Routes**
-- **TypeScript**
-
-### AI Integration
-- **OpenAI SDK**
+- **Frontend**: Next.js, Tailwind
+- **Backend**: Next.js API Routes, Typescript
+- **AI Integration**: OpenAI SDK
 
 ## Features
 
