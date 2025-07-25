@@ -40,7 +40,7 @@ export default function ChatBot() {
             {renderMessages()}
           </div>
           <div className={messages.length > 0 ? `hidden` : `mt-20 flex flex-col justify-center text-center gap-5`}>
-            <h1 className="text-3xl font-normal">Hi, I'm Proverbs Chat</h1>
+            <h1 className="text-3xl font-normal">{"Hi, I'm Proverbs Chat"}</h1>
             <p className="font-extralight text-md mb-10">
                 Ask me any questions about christianity, faith, etc.
             </p>

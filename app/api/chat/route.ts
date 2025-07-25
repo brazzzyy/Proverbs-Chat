@@ -24,7 +24,7 @@ export async function POST(req: Request) {
             messages: convertToModelMessages(messages),
         });
         return result.toUIMessageStreamResponse();
-    } catch (error) {
+    } catch {
         return new Response (
             JSON.stringify({error: "OpenAI usage exceeded or connection aborted"}),
             { status: 429, headers: { 'Content-type' : 'Application/json'} }
