@@ -11,18 +11,19 @@ Visit: ___
 ```
 proverbs-chat/
 ├── public/          # Static assets (images, fonts, etc.)
-├── src/
-│   ├── components/  # React components
-│   ├── pages/       # Next.js pages
-│   ├── styles/      # Tailwind CSS styles
-│   ├── utils/       # Utility functions
-│   ├── hooks/       # Custom React hooks
-│   └── lib/         # External libraries or helpers
+├── app/             # Next.js app directory
+│   ├── api/         # API routes
+│   │   └── chat/    # Chat API route
+│   ├── ui/          # UI components (e.g., nav, chat)
+│   │   ├── chat.tsx
+│   │   └── nav.tsx 
+│   ├── globals.css  # Global styles
+│   ├── layout.tsx   # Root layout
+│   ├── page.tsx     # Main page
 ├── README.md        # Project documentation
 ├── package.json     # Project dependencies and scripts
 ├── next.config.js   # Next.js configuration
 └── tsconfig.json    # TypeScript configuration
-
 ```
 
 ## Tech Stack
