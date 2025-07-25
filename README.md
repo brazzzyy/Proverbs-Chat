@@ -4,7 +4,7 @@ Proverbs Chat is a Christian AI chatbot built using Next.js and OpenAI's GPT-4o-
 
 ## See The Project
 
-Visit: ___
+Visit: https://proverbs-chat.vercel.app/ to see the project in action!
 
 ## Project Folder Structure
 
