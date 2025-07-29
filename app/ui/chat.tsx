@@ -42,7 +42,7 @@ export default function ChatBot() {
             className={
               messages.length > 0
                 ? `hidden`
-                : `w-80 lg:w-full 2xl:mt-70 mt-20 flex flex-col justify-center text-center gap-5`
+                : `w-80 mt-10 lg:w-full lg:mt-20 2xl:mt-70 flex flex-col justify-center text-center gap-5`
             }
           >
             <h1 className="text-3xl font-normal">{"Hi, I'm Proverbs Chat"}</h1>
