@@ -20,6 +20,10 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="scrollbar-hide">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="apple-mobile-web-app-title" content="MyWebSite" />
+      </head>
       <body className={lexend.className}>
         {children}
       </body>
