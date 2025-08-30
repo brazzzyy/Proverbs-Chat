@@ -38,13 +38,9 @@ export default function ChatBot() {
           <div className="pt-10 flex flex-col gap-13 self-end w-full scrollbar-hide pb-30">
             {renderMessages()}
           </div>
-          <div
-            className={
-              messages.length > 0
+          <div className={messages.length > 0
                 ? `hidden`
-                : `w-80 mt-10 lg:w-full lg:mt-20 2xl:mt-70 flex flex-col justify-center text-center gap-5`
-            }
-          >
+                : `w-80 mt-10 lg:w-full lg:mt-20 2xl:mt-70 flex flex-col justify-center text-center gap-5`}>
             <h1 className="text-3xl font-normal">{"Hi, I'm Proverbs Chat"}</h1>
             <p className="font-extralight text-md mb-10">
               Ask me any questions about christianity, faith, etc.
@@ -52,10 +48,9 @@ export default function ChatBot() {
           </div>
         </div>
         <div className={`${messages.length > 0 ? "fixed bottom-7" : ""} 
-          w-85 lg:w-175 max-w-screen-md bg-textcolor p-4 rounded-3xl cursor-text border border-bordercolor z-50`}
+          w-85 lg:w-180 max-w-screen-md bg-textcolor p-4 rounded-3xl cursor-text border border-bordercolor z-50`}
           onClick={() => inputRef.current?.focus()}>
-          <form
-            className="flex justify-between items-center"
+          <form className="flex justify-between items-center"
             onSubmit={(e) => {
               e.preventDefault();
               if (input) {

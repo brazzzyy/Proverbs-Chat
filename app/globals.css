@@ -7,6 +7,7 @@
   --color-bordercolor: var(--bordercolor);
   --color-textboxcolor: var(--textboxcolor);
   --color-background: var(--background);
+  --color-signupboxcolor: var(--signupboxcolor);
 }
 
 :root {
@@ -18,6 +19,7 @@
   --bordercolor: rgb(68, 67, 67);
   --textboxcolor: rgb(50, 50, 50);
   --background: #212121;
+  --signupboxcolor: rgb(75, 75, 75);
 }
 
 .scrollbar-hide::-webkit-scrollbar {
