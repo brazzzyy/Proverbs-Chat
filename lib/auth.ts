@@ -7,18 +7,25 @@ const key = new TextEncoder().encode(secretKey);
 
 // Define the structure of the session payload
 interface SessionPayload extends Record<string, unknown> {
-    user: { email: string; name: string };
+    user: { email: string };
     expires?: Date;
 }
 
-export async function login(formData: FormData) {
-    // Verify credientials and get user
-    const user = { email: formData.get("email") as string, name: "name" as string};
+type User = {
+    email: string,
+    password: string
+}
 
+export async function login(user: User) {
+    // !! TODO: Validate "user: User" below for database integration with Postgres!!
+    if (!user.email || !user.password) {
+        throw new Error("Invalid Credentials");
+    }
     // Create the session
+    // TODO: 10 seconds just for testing right now, change it to 24 hours upon database integration
     const expires = new Date(Date.now() + 10 * 1000);
     const session = await encrypt({ user, expires });
- 
+
     // Save the session in a cookie
     (await cookies()).set('session', session, { expires, httpOnly: true });
 }
@@ -41,9 +48,14 @@ export async function decrypt(input: string): Promise<SessionPayload> {
         algorithms: ['HS256'],
     });
 
-    if (!payload.user || typeof payload.user !== 'object' || !('email' in payload.user) || !('name' in payload.user)) {
-        throw new Error("Invalid session payload");
+    if (
+        !payload.user ||
+        typeof payload.user !== "object" ||
+        !("email" in payload.user)
+      ) {
+        throw new Error("Invalid session");
     }
+
     return payload as SessionPayload;
 }
 
@@ -52,8 +64,8 @@ export async function getSession() {
 
     if (!session) return null;
     return await decrypt(session);
-    
 }
+
 export async function updateSession(request: NextRequest) {
     const session = request.cookies.get("session")?.value;
     if (!session) return;

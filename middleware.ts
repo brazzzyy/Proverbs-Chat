@@ -8,11 +8,12 @@ export async function middleware(request: NextRequest) {
     if (!token) {
         return NextResponse.redirect(new URL("/login", request.url));
     }
-
+    // If token exists, send the user to their home page
     try {
         await decrypt(token);
         return NextResponse.next();
-    } catch {
+    } catch (error: any) {
+        console.log(error.message);
         return NextResponse.redirect(new URL("/login", request.url));
     }
 }

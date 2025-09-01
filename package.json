@@ -12,6 +12,7 @@
     "@ai-sdk/openai": "2.0.0-beta.11",
     "@ai-sdk/react": "2.0.0-beta.25",
     "ai": "5.0.0-beta.25",
+    "bcrypt": "^6.0.0",
     "jose": "^6.1.0",
     "next": "15.4.3",
     "postgres": "^3.4.7",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

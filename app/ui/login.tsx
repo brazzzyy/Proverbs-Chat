@@ -3,11 +3,16 @@ import { login } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function Login() {
-    
+
+
     return (
-        <form action={async (formData) => {
+        <form action={ async (formData: FormData) => {
                 "use server";
-                await login(formData);
+                const user = {
+                    email: formData.get("email") as string,
+                    password: formData.get("password") as string,
+                };
+                    await login(user);
                 redirect("/");
             }} className="mt-35 w-100 h-95 border-bordercolor border-2 rounded-md flex flex-col justify-center items-center gap-5 bg-textboxcolor">
             <h1 className="font-medium text-2xl mt-[-50]">Login to Proverbs Chat</h1>
