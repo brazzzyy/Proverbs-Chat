@@ -5,6 +5,12 @@ import { NextRequest, NextResponse } from "next/server";
 const secretKey = process.env.JWT_SECRET!;
 const key = new TextEncoder().encode(secretKey);
 
+// Define the structure of the session payload
+interface SessionPayload extends Record<string, unknown> {
+    user: { email: string; name: string };
+    expires?: Date;
+}
+
 export async function login(formData: FormData) {
     // Verify credientials and get user
     const user = { email: formData.get("email") as string, name: "name" as string};
@@ -22,19 +28,23 @@ export async function logout() {
     (await cookies()).set('session', '', { expires: new Date(0) });
 }
 
-export async function encrypt(payload: Record<string, unknown>) {
+export async function encrypt(payload: SessionPayload) {
     return await new SignJWT(payload)
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime('10 seconds from now')
-        .sign(key)
+        .sign(key);
 }
 
-export async function decrypt(input: string): Promise<Record<string, unknown>> {
+export async function decrypt(input: string): Promise<SessionPayload> {
     const { payload } = await jwtVerify(input, key, {
         algorithms: ['HS256'],
     });
-    return payload;
+
+    if (!payload.user || typeof payload.user !== 'object' || !('email' in payload.user) || !('name' in payload.user)) {
+        throw new Error("Invalid session payload");
+    }
+    return payload as SessionPayload;
 }
 
 export async function getSession() {
