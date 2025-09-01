@@ -18,9 +18,7 @@ type User = {
 
 export async function login(user: User) {
     // !! TODO: Validate "user: User" below for database integration with Postgres!!
-    if (!user.email || !user.password) {
-        throw new Error("Invalid Credentials");
-    }
+
     // Create the session
     // TODO: 10 seconds just for testing right now, change it to 24 hours upon database integration
     const expires = new Date(Date.now() + 10 * 1000);
@@ -74,12 +72,15 @@ export async function updateSession(request: NextRequest) {
     const parsed = await decrypt(session);
     parsed.expires = new Date(Date.now() + 10 * 1000); 
     const res = NextResponse.next();
-    res.cookies.set({ 
-        name: "session",
-        value: await encrypt(parsed),
-        httpOnly: true,
-        expires: parsed.expires,
-    });
+    res.cookies.set({
+    name: "session",
+    value: await encrypt(parsed),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax", 
+    path: "/",
+    expires: parsed.expires,
+});
 
     return res;
 }
