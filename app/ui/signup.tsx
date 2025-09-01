@@ -35,8 +35,8 @@ export default function SignUp() {
                 router.push("/");
             }
 
-        } catch(err: any) {
-            console.log(`Error: ${err.message}`);
+        } catch(err) {
+            console.log(`Error: ${err}`);
         }
     }
 
