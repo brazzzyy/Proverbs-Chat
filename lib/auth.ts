@@ -1,5 +1,4 @@
 import { SignJWT, jwtVerify } from "jose";
-import { redirect } from "next/dist/server/api-utils";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -13,7 +12,7 @@ export async function login(formData: FormData) {
     // Create the session
     const expires = new Date(Date.now() + 10 * 1000);
     const session = await encrypt({ user, expires });
-
+ 
     // Save the session in a cookie
     (await cookies()).set('session', session, { expires, httpOnly: true });
 }
@@ -23,7 +22,7 @@ export async function logout() {
     (await cookies()).set('session', '', { expires: new Date(0) });
 }
 
-export async function encrypt(payload: any) {
+export async function encrypt(payload: Record<string, unknown>) {
     return await new SignJWT(payload)
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
@@ -31,7 +30,7 @@ export async function encrypt(payload: any) {
         .sign(key)
 }
 
-export async function decrypt(input: string): Promise<any> {
+export async function decrypt(input: string): Promise<Record<string, unknown>> {
     const { payload } = await jwtVerify(input, key, {
         algorithms: ['HS256'],
     });

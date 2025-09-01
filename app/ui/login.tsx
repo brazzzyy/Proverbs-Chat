@@ -15,7 +15,7 @@ export default async function Login() {
             <input type="password" name="password" className="bg-signupboxcolor w-85 p-2 font-extralight rounded-lg outline-0" placeholder="Password" required/>
             <button type="submit" className="mt-[-10] w-85 h-8 border-white border-1 rounded-lg cursor-pointer">Login</button>
             <hr className="border-gray-500 font-bold w-80 mt-2"></hr>
-            <p className="font-light flex justify-center gap-2">Don't have an account?
+            <p className="font-light flex justify-center gap-2">{`Don't have an account?`}
                 <Link href="/signup" className="underline">Sign Up</Link>
             </p>
         </form>
