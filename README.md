@@ -31,6 +31,7 @@ proverbs-chat/
 
 - **Frontend**: Next.js, Tailwind
 - **Backend**: Next.js API Routes, Typescript
+- **Database**: Supabase
 - **AI Integration**: OpenAI SDK
 
 ## Features
@@ -41,6 +42,6 @@ proverbs-chat/
 
 ## Future Features To Work On
 
+- RAG Pipeline to strengthen AI responses on christian theology
 - Import pictures for the AI model to analyze and give a response, more specifically in the context of uploading a bible verse
-- Integrate PostgreSQL database to store all responses to view history of chat messages
 - UI features (dark/light mode, customization, responsiveness)
