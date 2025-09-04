@@ -43,7 +43,7 @@ export default function Login() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-35 w-100 h-105 border-bordercolor border-2 rounded-md flex flex-col justify-center items-center gap-5 bg-textboxcolor">
+    <form onSubmit={handleSubmit} className="mt-35 w-100 h-95 border-bordercolor border-2 rounded-md flex flex-col justify-center items-center gap-5 bg-textboxcolor">
       <h1 className="font-medium text-2xl mt-[-50]">Login to Proverbs Chat</h1>
       <input
         type="email"
