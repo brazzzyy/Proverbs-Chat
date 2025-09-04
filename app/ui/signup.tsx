@@ -24,9 +24,11 @@ export default function SignUp() {
 
         // Sending form data in the POST request to server side
         try {
+            const formDataObj = Object.fromEntries(new FormData(event.currentTarget).entries());
             const res = await fetch("/api/signup", {
                 method: "POST",
-                body: formData
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formDataObj),
             });
 
             if (!res.ok) {
@@ -34,7 +36,6 @@ export default function SignUp() {
             } else {
                 router.push("/");
             }
-
         } catch(err) {
             console.log(`Error: ${err}`);
         }

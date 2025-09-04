@@ -11,17 +11,14 @@ interface SessionPayload extends Record<string, unknown> {
     expires?: Date;
 }
 
-type User = {
-    email: string,
-    password: string
-}
+type SessionUser = {
+    email: string;
+    id?: string;
+  };
 
-export async function login(user: User) {
-    // !! TODO: Validate "user: User" below for database integration with Postgres!!
-
-    // Create the session
-    // TODO: 10 seconds just for testing right now, change it to 24 hours upon database integration
-    const expires = new Date(Date.now() + 10 * 1000);
+export async function createSessionToken(user: SessionUser) {
+    // Create the session (24 hours before expiration)
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const session = await encrypt({ user, expires });
 
     // Save the session in a cookie
@@ -37,7 +34,7 @@ export async function encrypt(payload: SessionPayload) {
     return await new SignJWT(payload)
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
-        .setExpirationTime('10 seconds from now')
+        .setExpirationTime('24 hours')
         .sign(key);
 }
 
@@ -84,4 +81,3 @@ export async function updateSession(request: NextRequest) {
 
     return res;
 }
-

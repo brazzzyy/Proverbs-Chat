@@ -1,26 +1,48 @@
 import { NextResponse } from "next/server";
-import { login } from "@/lib/auth";
+import { createSessionToken } from "@/lib/auth";
 import bcrypt from "bcrypt";
+import { createClient } from "@supabase/supabase-js";
 
 export async function POST(request: Request) {
-    try {
-        const formData = await request.formData(); 
-        
-        // TODO: ^^^ => Add backend logic to append formdata to database
-        const email = formData.get("email") as string;
-        const password = formData.get("password") as string;
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    try {
+        const body = await request.json();
+        const email = body.email as string;
+        const password = body.password as string;
 
         // Basic validation
         if (!email || !password) {
             return NextResponse.json({ error: "Missing credential fields "}, { status: 400});
         }
+        // Hash/encrypt the password
+        const hashedPassword = await bcrypt.hash(password, 10); 
 
-        await login({ email, password: hashedPassword });
-        return NextResponse.json({ message: "User created" }, { status: 200 });
-    } catch {
-        return NextResponse.json({ message: "Error"}, {status: 400 });
+        // Append user's signup data to supabase
+        const { data, error } = await supabase
+            .from("users")
+            .insert([
+                { email, 
+                  password_hash: hashedPassword 
+                }
+            ]);
+
+        if (error) {
+            console.error("Supabase insert error:", error);
+            return NextResponse.json({ error: error.message }, { status: 400 });
+        }
+        await createSessionToken({ email });
+        return NextResponse.json({ message: "Sucess" }, { status: 200 });
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+          console.error("Signup error:", err.message);
+          return NextResponse.json({ error: err.message }, { status: 500 });
+        }
+        console.error("Unknown signup error:", err);
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
