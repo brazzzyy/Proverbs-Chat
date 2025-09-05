@@ -15,7 +15,6 @@ export default function NavHeader() {
                     Proverbs Chat
                 </span>
             </div>
-
             <div className="ml-auto pr-4">
                 <Logout />
             </div>

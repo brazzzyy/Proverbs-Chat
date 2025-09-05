@@ -14,7 +14,7 @@ interface SessionPayload extends Record<string, unknown> {
 type SessionUser = {
     email: string;
     id?: string;
-  };
+};
 
 export async function createSessionToken(user: SessionUser) {
     // Create the session (24 hours before expiration)
@@ -26,8 +26,16 @@ export async function createSessionToken(user: SessionUser) {
 }
 
 export async function logout() {
+    const cookieStore = await cookies();
+
     // Terminate the session
-    (await cookies()).set('session', '', { expires: new Date(0) });
+    cookieStore.set({
+    name: "session",
+    value: "",        
+    maxAge: 0,       
+    httpOnly: true,   
+    path: "/",  
+  });
 }
 
 export async function encrypt(payload: SessionPayload) {
