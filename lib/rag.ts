@@ -5,7 +5,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Knowledge base structure
+// knowledge base structure
 interface KnowledgeItem {
   id: string;
   content: string;
@@ -14,7 +14,7 @@ interface KnowledgeItem {
   embedding?: number[];
 }
 
-// In-memory knowledge base (in production, use a proper vector database)
+// hard-coded knowledge base - should integrate a database later
 class KnowledgeBase {
   private items: KnowledgeItem[] = [];
   private embeddings: Map<string, number[]> = new Map();
@@ -42,7 +42,7 @@ class KnowledgeBase {
   async search(query: string, limit: number = 5): Promise<KnowledgeItem[]> {
     const queryEmbedding = await this.generateEmbedding(query);
     
-    // Calculate cosine similarity
+    // calculate cosine similarity (stackoverflow implementation)
     const similarities = this.items.map(item => {
       if (!item.embedding) return { item, similarity: 0 };
       
@@ -50,7 +50,7 @@ class KnowledgeBase {
       return { item, similarity };
     });
 
-    // Sort by similarity and return top results
+    // sort by similarity and return top results
     return similarities
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, limit)
@@ -73,7 +73,7 @@ class KnowledgeBase {
     return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
   }
 
-  // Initialize with biblical knowledge
+  // initialize with biblical knowledge
   async initialize() {
     const knowledgeItems = [
       // Proverbs
@@ -232,10 +232,10 @@ class KnowledgeBase {
   }
 }
 
-// Global knowledge base instance
+// global knowledge base instance
 const knowledgeBase = new KnowledgeBase();
 
-// Initialize knowledge base on first import
+// initialize knowledge base on first import
 let isInitialized = false;
 export async function initializeKnowledgeBase() {
   if (!isInitialized) {
@@ -244,7 +244,7 @@ export async function initializeKnowledgeBase() {
   }
 }
 
-// RAG retrieval function
+// RAG retrieval function (simplified)
 export async function retrieveRelevantContext(query: string, limit: number = 3): Promise<string> {
   await initializeKnowledgeBase();
   
@@ -254,7 +254,7 @@ export async function retrieveRelevantContext(query: string, limit: number = 3):
     return '';
   }
 
-  // Format retrieved context
+  // format retrieved context
   const context = relevantItems.map(item => {
     let formatted = item.content;
     if (item.reference) {
@@ -266,7 +266,7 @@ export async function retrieveRelevantContext(query: string, limit: number = 3):
   return context;
 }
 
-// Enhanced RAG function that provides structured context
+// enhanced RAG function that provides structured context
 export async function getRAGContext(query: string): Promise<{
   context: string;
   references: string[];

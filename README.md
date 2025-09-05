@@ -1,31 +1,10 @@
 ## Project Overview
 
-Proverbs Chat is a Christian AI chatbot built using Next.js and OpenAI's GPT-4o-mini model. It provides empathetic, biblically grounded responses to questions about Christianity, faith, and life. The chatbot is designed to offer concise and conversational answers while maintaining a warm and respectful tone.
+Proverbs Chat is a Christian AI chatbot built using Next.js and OpenAI's GPT-4o-mini model. The chatbot provides empathetic, biblically grounded responses to questions about Christianity, faith, and life. It's designed to offer concise and conversational answers to help the person understand more about any topics towards Christianity or gain insight on wisdom overall
 
 ## See The Project
 
 Visit: https://proverbs-chat.vercel.app/ to see the project in action!
-
-## Project Folder Structure
-
-```
-proverbs-chat/
-├── public/                 # Static assets (images, fonts, etc.)
-├── app/                    # Next.js app directory
-│   ├── api/                # API routes
-│   │   └── chat/           # Chat API route
-│   │       └── route.ts 
-│   ├── ui/                 # UI components (e.g., nav, chat)
-│   │    ├── chat.tsx
-│   │    └── nav.tsx 
-│   ├── globals.css         # Global styles
-│   ├── layout.tsx          # Root layout
-│   ├── page.tsx            # Main page
-├── README.md               # Project documentation
-├── package.json            # Project dependencies and scripts
-├── next.config.js          # Next.js configuration
-└── tsconfig.json           # TypeScript configuration
-```
 
 ## Tech Stack
 
@@ -34,16 +13,9 @@ proverbs-chat/
 - **Database**: Supabase
 - **AI Integration**: OpenAI SDK
 
-## Features
-
-- **Christian AI Chatbot**: Provides biblically grounded wisdom in a conversational tone.
-- **Empathetic Responses**: Designed to sound warm and human-like, avoiding robotic or overly formal language.
-- **Scripture Integration**: Uses Bible verses selectively to strengthen responses.
-- **RAG Pipeline**: Retrieval-Augmented Generation system that enhances AI responses with relevant biblical knowledge.
-
 ## RAG Pipeline
 
-The app includes a sophisticated RAG system that retrieves relevant biblical content to strengthen AI responses:
+The app has a RAG pipeline that retrieves relevant biblical content to strengthen AI responses:
 
 ### How It Works
 1. **Semantic Search**: Uses OpenAI embeddings to find relevant biblical content
@@ -57,10 +29,6 @@ The app includes a sophisticated RAG system that retrieves relevant biblical con
 - **Teachings**: Core Christian doctrines
 - **Prayer**: Prayer guidance and examples
 - **Guidance**: Life guidance and spiritual direction
-
-### API Endpoints
-- `POST /api/chat` - Enhanced chat with RAG context
-- `POST /api/rag` - Direct RAG search functionality
 
 ## Future Features To Work On
 
