@@ -39,9 +39,31 @@ proverbs-chat/
 - **Christian AI Chatbot**: Provides biblically grounded wisdom in a conversational tone.
 - **Empathetic Responses**: Designed to sound warm and human-like, avoiding robotic or overly formal language.
 - **Scripture Integration**: Uses Bible verses selectively to strengthen responses.
+- **RAG Pipeline**: Retrieval-Augmented Generation system that enhances AI responses with relevant biblical knowledge.
+
+## RAG Pipeline
+
+The app includes a sophisticated RAG system that retrieves relevant biblical content to strengthen AI responses:
+
+### How It Works
+1. **Semantic Search**: Uses OpenAI embeddings to find relevant biblical content
+2. **Knowledge Base**: Contains 25+ curated items (proverbs, scripture, teachings, prayer guidance)
+3. **Context Enhancement**: Injects retrieved wisdom into AI responses
+4. **Scripture References**: Automatically includes biblical references
+
+### Knowledge Categories
+- **Proverbs**: Wisdom sayings from the Book of Proverbs
+- **Scripture**: Key Bible verses and teachings
+- **Teachings**: Core Christian doctrines
+- **Prayer**: Prayer guidance and examples
+- **Guidance**: Life guidance and spiritual direction
+
+### API Endpoints
+- `POST /api/chat` - Enhanced chat with RAG context
+- `POST /api/rag` - Direct RAG search functionality
 
 ## Future Features To Work On
 
-- RAG Pipeline to strengthen AI responses on christian theology
 - Import pictures for the AI model to analyze and give a response, more specifically in the context of uploading a bible verse
 - UI features (dark/light mode, customization, responsiveness)
+- Vector database integration for better performance
