@@ -18,17 +18,9 @@ Visit: https://proverbs-chat.vercel.app/ to see the project in action!
 The app has a RAG pipeline that retrieves relevant biblical content to strengthen AI responses:
 
 ### How It Works
-1. **Semantic Search**: Uses OpenAI embeddings to find relevant biblical content
-2. **Knowledge Base**: Contains 25+ curated items (proverbs, scripture, teachings, prayer guidance)
-3. **Context Enhancement**: Injects retrieved wisdom into AI responses
-4. **Scripture References**: Automatically includes biblical references
+The RAG system works by using OpenAI's embedding technology to understand the meaning behind user questions and find the most relevant biblical content from the knowledge base. When someone asks a question, the system searches through over 25 topics of proverbs, scriptures, teachings, and guidance materials to find content that truly relates to what the user is asking about. This relevant wisdom is then augmented into the AI's response
 
-### Knowledge Categories
-- **Proverbs**: Wisdom sayings from the Book of Proverbs
-- **Scripture**: Key Bible verses and teachings
-- **Teachings**: Core Christian doctrines
-- **Prayer**: Prayer guidance and examples
-- **Guidance**: Life guidance and spiritual direction
+The knowledge base covers everything from Solomon's proverbs and key Bible verses to practical teachings about Christian life, prayer guidance, and spiritual direction. It's like having a wise biblical counselor who can instantly find the appropiate verse or teaching for any situation
 
 ## Future Features To Work On
 
