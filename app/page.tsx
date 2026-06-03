@@ -1,11 +1,14 @@
-import Header from "./ui/nav";
 import Chat from "./ui/chat";
- 
-export default function Home() { 
+import Splash from "./ui/splash";
+import SidebarLayout from "./ui/sidebar-layout";
+
+export default function Home() {
   return (
-    <main className="flex flex-col items-center">
-      <Header />
-      <Chat />
-    </main>
+    <SidebarLayout>
+      <Splash />
+      <main className="flex min-h-screen w-full flex-col items-center">
+        <Chat />
+      </main>
+    </SidebarLayout>
   );
 }
