@@ -42,7 +42,7 @@ class KnowledgeBase {
   async search(query: string, limit: number = 5): Promise<KnowledgeItem[]> {
     const queryEmbedding = await this.generateEmbedding(query);
     
-    // calculate cosine similarity (stackoverflow implementation)
+    // calculate cosine similarity for semantic similarity comparisons (stackoverflow implementation)
     const similarities = this.items.map(item => {
       if (!item.embedding) return { item, similarity: 0 };
       

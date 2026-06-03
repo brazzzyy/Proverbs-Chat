@@ -19,7 +19,7 @@ export async function POST(req: Request) {
             ? latestMessage.parts[0].text 
             : '';
 
-        // Retrieve relevant context using RAG
+        // retrieve relevant context using RAG
         let ragContext = '';
         let references: string[] = [];
         
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
             }
         }
 
-        // Build enhanced system prompt with RAG context
+        // design the system prompt with RAG context
         let systemPrompt = `You are a warm, respectful, and wise Christian chatbot named "Proverbs Chat".
             You speak in a friendly and human tone, guided by the teachings of Jesus Christ.
             Be empathetic and sound like a personal companion, not robotic or overly formal.
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
             Use Scripture only when it clearly supports or strengthens your response—avoid quoting multiple verses unless necessary.
             Respond concisely avoiding long paragraphs. Never contradict Biblical truth.`;
 
-        // Add RAG context if available
+        // add RAG context if available
         if (ragContext) {
             systemPrompt += `\n\nRelevant biblical wisdom and teachings to consider:\n${ragContext}`;
             

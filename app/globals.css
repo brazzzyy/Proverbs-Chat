@@ -8,18 +8,45 @@
   --color-textboxcolor: var(--textboxcolor);
   --color-background: var(--background);
   --color-signupboxcolor: var(--signupboxcolor);
+  --color-accent: var(--accent);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  /* custom colors */
-  --navgray: #181818;
-  --textcolor: #1e1e1e;
-  --bordercolor: rgb(68, 67, 67);
-  --textboxcolor: rgb(50, 50, 50);
-  --background: #212121;
-  --signupboxcolor: rgb(75, 75, 75);
+  --foreground: #ededed;
+  /* clean neutral dark palette, lifted off pure black to soften contrast */
+  --background: #131317;
+  --surface: #1d1d22;
+  --surface-raised: #27272d;
+  --accent: #c2a878;
+  --ink: #ededed;
+  --ink-muted: #93939b;
+
+  --navgray: rgba(19, 19, 23, 0.8);
+  --textcolor: #1d1d22;
+  --bordercolor: rgba(255, 255, 255, 0.09);
+  --textboxcolor: #1d1d22;
+  --signupboxcolor: #27272d;
+  --sidebar-width: 0px;
+}
+
+@property --sidebar-width {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+html {
+  transition: --sidebar-width 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --sidebar-width: 3rem;
+  }
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -28,7 +55,22 @@
 
 .scrollbar-hide {
   -ms-overflow-style: none;
-  scrollbar-width: none;     
+  scrollbar-width: none;
+}
+
+/* bottom fade — opacity tied to scroll (inline); gradient only (no backdrop-blur while scrolling) */
+.scroll-bottom-fade {
+  height: 6rem;
+  background: linear-gradient(
+    to top,
+    var(--background) 0%,
+    rgba(19, 19, 23, 0.55) 28%,
+    rgba(19, 19, 23, 0.2) 55%,
+    rgba(19, 19, 23, 0.06) 78%,
+    transparent 100%
+  );
+  will-change: opacity;
+  transform: translateZ(0);
 }
 
 @theme inline {
@@ -38,15 +80,103 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #212121;
-    --foreground: #ededed;
+body {
+  color: var(--foreground);
+  font-family: var(--font-lexend), Arial, Helvetica, sans-serif;
+  /* gentle, even charcoal gradient across the whole page so no flat black voids */
+  background-color: var(--background);
+  background-image:
+    radial-gradient(1100px 700px at 50% -200px, rgba(255, 255, 255, 0.045), transparent 72%),
+    linear-gradient(180deg, #1c1c22 0%, #16161b 50%, #121216 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+/* subtle entrance for chat messages */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.animate-rise {
+  animation: rise 0.3s ease-out both;
+}
+
+/* smooth word-by-word reveal as the assistant streams text */
+@keyframes token-in {
+  from {
+    opacity: 0;
+    filter: blur(1.5px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.token-in {
+  display: inline;
+  animation: token-in 0.4s ease-out both;
+}
+
+/* respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .token-in {
+    animation: none;
+  }
+}
+
+/* understated typing dots */
+@keyframes dot-bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  40% {
+    transform: translateY(-3px);
+    opacity: 0.9;
+  }
+}
+
+.loading-dot {
+  animation: dot-bounce 1.4s ease-in-out infinite;
+}
+
+/* full-screen loader: gently breathing logo */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+.animate-breathe {
+  animation: breathe 1.9s ease-in-out infinite;
+}
+
+/* soft expanding ring radiating from the logo */
+@keyframes ring-pulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+.animate-ring-pulse {
+  animation: ring-pulse 1.9s ease-out infinite;
 }

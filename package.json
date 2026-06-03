@@ -22,6 +22,11 @@
     "react-dom": "19.1.0",
     "zod": "^4.0.5"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt"
+    ]
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
