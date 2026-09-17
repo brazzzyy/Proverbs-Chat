@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRAGContext, initializeKnowledgeBase } from '@/lib/rag';
+import { getRAGContext } from '@/lib/rag';
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,10 +10,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Query parameter "q" is required' }, { status: 400 });
     }
 
-    // Initialize knowledge base if needed
-    await initializeKnowledgeBase();
-    
-    // Get RAG context
     const ragResult = await getRAGContext(query);
     
     return NextResponse.json({
@@ -39,9 +35,8 @@ export async function POST(request: NextRequest) {
 
     switch (action) {
       case 'initialize':
-        await initializeKnowledgeBase();
-        return NextResponse.json({ 
-          message: 'Knowledge base initialized successfully',
+        return NextResponse.json({
+          message: 'Knowledge base is static and ready',
           timestamp: new Date().toISOString()
         });
       

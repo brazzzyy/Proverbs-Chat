@@ -16,7 +16,6 @@ export default function SignUp() {
         const formData = new FormData(event.currentTarget);
         const pass = formData.get("password") as string;
 
-        // Password edge cases
         if (!pass || pass.length < 8){
             setError("Error");
             return;
