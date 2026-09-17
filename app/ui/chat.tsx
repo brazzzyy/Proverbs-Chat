@@ -33,7 +33,7 @@ export default function ChatBot() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [fadeOpacity, setFadeOpacity] = useState(0);
     const [input, setInput] = useState('');
-    const { messages, sendMessage, status } = useChat();
+    const { messages, sendMessage, status, error, regenerate } = useChat();
 
     const resizeComposer = () => {
         const el = inputRef.current;
@@ -49,6 +49,7 @@ export default function ChatBot() {
         lastMessage?.role === 'assistant' &&
         lastMessage.parts.some(part => part.type === 'text' && part.text.length > 0);
     const isThinking = (status === 'submitted' || status === 'streaming') && !assistantHasText;
+    const hasError = status === 'error' || Boolean(error);
 
     const submit = (text: string) => {
         const value = text.trim();
@@ -241,11 +242,25 @@ export default function ChatBot() {
                 >
                     <div className="flex flex-col pt-10 pb-6">
                         {renderMessages()}
-                        {isThinking && (
+                        {isThinking && !hasError && (
                             <div className={`animate-rise flex items-center gap-2 py-1 w-fit self-start ${lastMessage?.role === 'user' ? 'mt-9' : 'mt-2'}`}>
                                 <span className="loading-dot w-1.5 h-1.5 rounded-full bg-ink-muted" style={{ animationDelay: '0ms' }} />
                                 <span className="loading-dot w-1.5 h-1.5 rounded-full bg-ink-muted" style={{ animationDelay: '160ms' }} />
                                 <span className="loading-dot w-1.5 h-1.5 rounded-full bg-ink-muted" style={{ animationDelay: '320ms' }} />
+                            </div>
+                        )}
+                        {hasError && (
+                            <div className={`animate-rise flex flex-col gap-2 w-fit max-w-[85%] lg:max-w-[78%] self-start py-1 ${lastMessage?.role === 'user' ? 'mt-9' : 'mt-2'}`}>
+                                <p className="text-sm font-light leading-relaxed text-ink-muted">
+                                    Something went wrong reaching Proverbs Chat. Please try again in a moment.
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => regenerate()}
+                                    className="w-fit text-sm font-light text-ink-muted bg-surface border border-bordercolor rounded-full px-3.5 py-1.5 hover:text-ink hover:border-white/20 transition-colors duration-200 cursor-pointer"
+                                >
+                                    Try again
+                                </button>
                             </div>
                         )}
                     </div>
