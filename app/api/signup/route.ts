@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSessionToken } from "@/lib/auth";
 import bcrypt from "bcrypt";
-import { createClient } from "@supabase/supabase-js";
+import { authDb } from "@/lib/auth-db";
 import { isAllowed, clientIp } from "@/lib/rate-limit";
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -12,11 +12,6 @@ export async function POST(request: Request) {
     if (!(await isAllowed(`signup:${clientIp(request)}`, 5, 60 * 60))) {
         return NextResponse.json({ error: "Too many accounts created from this network. Please try again later." }, { status: 429 });
     }
-
-    const supabase = createClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
 
     try {
         const body = await request.json();
@@ -33,7 +28,7 @@ export async function POST(request: Request) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const { error } = await supabase
+        const { error } = await authDb()
             .from("users")
             .insert({ email, password_hash: hashedPassword });
 

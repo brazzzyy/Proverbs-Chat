@@ -1,14 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+import { authDb } from "@/lib/auth-db";
 
 // Fixed-window counters in the auth database (db/rate-limits.sql), shared by every
 // serverless instance. Fails open: a limiter outage shouldn't take the app down.
 export async function isAllowed(key: string, limit: number, windowSeconds: number): Promise<boolean> {
-    const supabase = createClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        { auth: { persistSession: false } }
-    );
-    const { data, error } = await supabase.rpc("hit_rate_limit", {
+    const { data, error } = await authDb().rpc("hit_rate_limit", {
         p_key: key,
         p_limit: limit,
         p_window_seconds: windowSeconds,

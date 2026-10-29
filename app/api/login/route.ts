@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { createSessionToken } from "@/lib/auth";
-import { createClient } from "@supabase/supabase-js";
+import { authDb } from "@/lib/auth-db";
 import { isAllowed, clientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
@@ -10,11 +10,6 @@ export async function POST(req: NextRequest) {
     if (!(await isAllowed(`login:${clientIp(req)}`, 10, 15 * 60))) {
         return NextResponse.json({ error: "Too many sign-in attempts. Please wait a few minutes and try again." }, { status: 429 });
     }
-
-    const supabase = createClient(
-        process.env.SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
 
     try {
         const body = await req.json();
@@ -26,7 +21,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Fetch user from Supabase
-        const { data: user, error } = await supabase
+        const { data: user, error } = await authDb()
             .from("users")
             .select("email, password_hash")
             .eq("email", email)
