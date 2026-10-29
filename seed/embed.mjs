@@ -1,5 +1,5 @@
-// Generates embeddings for KJV verses that don't have one yet. Safe to rerun.
-// Usage: node --env-file=.env.local seed/embed.mjs
+// Generates embeddings for verses that don't have one yet, then builds the vector
+// index. Safe to rerun. Usage: node --env-file=.env.local seed/embed.mjs
 import postgres from "postgres";
 import { embedMany } from "ai";
 import { openai } from "@ai-sdk/openai";
@@ -26,7 +26,7 @@ try {
   let done = 0;
   for (;;) {
     const verses = await sql`
-      select id, text from "KJV_verses"
+      select id, text from public.verses
       where embedding is null
       order by id
       limit ${BATCH_SIZE}`;
@@ -34,13 +34,13 @@ try {
 
     const { embeddings } = await embedMany({
       model: openai.embedding(EMBEDDING_MODEL),
-      values: verses.map((v) => v.text.trim()),
+      values: verses.map((v) => v.text),
       providerOptions: { openai: { dimensions: EMBEDDING_DIMENSIONS } },
     });
 
     const rows = verses.map((v, i) => ({ id: v.id, embedding: JSON.stringify(embeddings[i]) }));
     await sql`
-      update "KJV_verses" v
+      update public.verses v
       set embedding = d.embedding::extensions.vector
       from jsonb_to_recordset(${sql.json(rows)}) as d(id int, embedding text)
       where v.id = d.id`;
@@ -49,8 +49,15 @@ try {
     console.log(`Embedded ${done} verses`);
   }
 
-  const [{ remaining }] = await sql`select count(*)::int as remaining from "KJV_verses" where embedding is null`;
-  console.log(`Done. Verses without embeddings: ${remaining}`);
+  // Built after the embeddings exist (much faster than indexing row by row); can take a minute.
+  await sql.begin(async (tx) => {
+    await tx.unsafe("set local statement_timeout = 0");
+    await tx.unsafe(`create index if not exists verses_embedding_hnsw_idx
+      on public.verses using hnsw (embedding extensions.vector_cosine_ops)`);
+  });
+
+  const [{ remaining }] = await sql`select count(*)::int as remaining from public.verses where embedding is null`;
+  console.log(`Done. Verses without embeddings: ${remaining}. Vector index ready.`);
 } catch (err) {
   console.error("Embedding failed:", err.message);
   process.exitCode = 1;

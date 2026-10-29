@@ -11,34 +11,34 @@ export async function POST(req: NextRequest) {
     );
 
     try {
-        const { email, password } = await req.json();
+        const body = await req.json();
+        const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+        const password = typeof body.password === "string" ? body.password : "";
+
+        if (!email || !password) {
+            return NextResponse.json({ error: "Please enter your email and password." }, { status: 400 });
+        }
 
         // Fetch user from Supabase
         const { data: user, error } = await supabase
             .from("users")
             .select("email, password_hash")
             .eq("email", email)
-            .single();
+            .maybeSingle();
 
-        if (error) {
-            return NextResponse.json({ error: "Something went wrong" }, { status: 401 });
-        }
+        if (error) throw error;
 
-        // Verify password
-        const isValidPassword = await bcrypt.compare(password, user.password_hash);
-        if (!isValidPassword) {
+        // Same message for unknown email and wrong password so accounts can't be probed
+        if (!user || !(await bcrypt.compare(password, user.password_hash))) {
             return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
         }
 
         // Create session server-side
-        await createSessionToken({
-            email: user.email,
-        });
+        await createSessionToken({ email: user.email });
 
-        // Return success
         return NextResponse.json({ success: true });
     } catch (err) {
-        console.error(err);
-        return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+        console.error("Login error:", err);
+        return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
     }
 }

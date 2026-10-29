@@ -9,18 +9,21 @@ const EMBEDDING_DIMENSIONS = 512;
 // Off-topic questions score around 0.2; relevant verses score roughly 0.27 and up.
 const MIN_SIMILARITY = 0.25;
 
+// Translation loaded by seed/import.mjs; shown after each verse reference.
+export const TRANSLATION = 'BSB';
+
 // A small model decides whether the message is something Scripture speaks to and,
-// if so, writes what Scripture would say in KJV English. Modern questions ("anxiety")
-// often miss KJV wording ("Be careful for nothing"), so we search with that text.
+// if so, writes what Scripture would say to the person. Verses match that far better
+// than they match the question itself ("I'm stressed" vs "Be anxious for nothing").
 // It only steers the search: verse text always comes from the database.
 const PLANNER_MODEL = 'gpt-5.4-nano';
 const PLANNER_TIMEOUT_MS = 5000;
-const PLANNER_SYSTEM_PROMPT = `You decide whether a chat message to a Christian companion chatbot should be answered with Bible verses, and if so, help search the King James Bible (1769) for them.
+const PLANNER_SYSTEM_PROMPT = `You decide whether a chat message to a Christian companion chatbot should be answered with Bible verses, and if so, help search the Berean Standard Bible (a modern English translation) for them.
 
 The message is relevant when it seeks spiritual, emotional, moral or life guidance, shares a struggle or feeling, asks about God, faith, prayer, sin, the Bible or Christian living, or is a short follow-up that continues such a topic in the conversation so far.
 The message is NOT relevant when it is a greeting, thanks, farewell, small talk, an acknowledgement with nothing to look up, a question about the chatbot itself, or a trivia, factual, technical, coding, math or other request unrelated to faith and life guidance.
 
-If relevant, write searchText: one or two short sentences in King James English expressing what Scripture would say to the person (the counsel, promise, comfort or teaching that answers them), using the words and phrasing the KJV itself uses, with no verse references. Use the conversation to understand short follow-ups.
+If relevant, write searchText: one or two short sentences expressing what Scripture would say to the person (the counsel, promise, comfort or teaching that answers them), worded the way a modern Bible translation phrases it, with no verse references. Use the conversation to understand short follow-ups.
 If not relevant, set searchText to an empty string.`;
 const PLAN_SCHEMA = z.object({
   relevant: z.boolean(),
@@ -93,7 +96,7 @@ async function planSearch(query: string, history: ConversationTurn[]): Promise<S
   }
 }
 
-async function search(query: string, limit: number, history: ConversationTurn[] = []): Promise<VerseMatch[]> {
+async function search(query: string, limit: number, history: ConversationTurn[]): Promise<VerseMatch[]> {
   if (isSmallTalk(query)) return [];
 
   const plan = await planSearch(query, history);
@@ -105,7 +108,7 @@ async function search(query: string, limit: number, history: ConversationTurn[] 
     providerOptions: { openai: { dimensions: EMBEDDING_DIMENSIONS } },
   });
 
-  const { data, error } = await getBibleClient().rpc('match_kjv_verses', {
+  const { data, error } = await getBibleClient().rpc('match_verses', {
     query_embedding: embedding,
     match_count: limit,
     min_similarity: MIN_SIMILARITY,
@@ -115,30 +118,10 @@ async function search(query: string, limit: number, history: ConversationTurn[] 
   return (data ?? []) as VerseMatch[];
 }
 
-function reference(match: VerseMatch): string {
-  return `${match.book} ${match.chapter}:${match.verse}`;
-}
-
-function format(match: VerseMatch): string {
-  return `${match.text.trim()} (${reference(match)}, KJV)`;
-}
-
-export async function retrieveRelevantContext(query: string, limit: number = 3): Promise<string> {
-  const matches = await search(query, limit);
-  return matches.map(format).join('\n\n');
-}
-
-export async function getRAGContext(query: string, history: ConversationTurn[] = []): Promise<{
-  context: string;
-  references: string[];
-  categories: string[];
-}> {
+// Returns matching verses formatted for the system prompt, or '' when none apply.
+export async function getVerseContext(query: string, history: ConversationTurn[] = []): Promise<string> {
   const matches = await search(query, 5, history);
-
-  return {
-    context: matches.map(format).join('\n\n'),
-    references: matches.map(reference),
-    // Book names of the matched verses (e.g. "Psalms", "Proverbs").
-    categories: [...new Set(matches.map(match => match.book))],
-  };
+  return matches
+    .map(match => `${match.text} (${match.book} ${match.chapter}:${match.verse}, ${TRANSLATION})`)
+    .join('\n\n');
 }

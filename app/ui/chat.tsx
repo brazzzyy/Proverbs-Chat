@@ -61,12 +61,15 @@ export default function ChatBot() {
     const assistantHasText =
         lastMessage?.role === 'assistant' &&
         lastMessage.parts.some(part => part.type === 'text' && part.text.length > 0);
-    const isThinking = (status === 'submitted' || status === 'streaming') && !assistantHasText;
+    const isBusy = status === 'submitted' || status === 'streaming';
+    const isThinking = isBusy && !assistantHasText;
     const hasError = status === 'error' || Boolean(error);
+    const canSend = Boolean(input.trim()) && !isBusy;
 
     const submit = (text: string) => {
         const value = text.trim();
-        if (!value) return;
+        // one reply at a time; sending mid-stream would interleave responses
+        if (!value || isBusy) return;
         sendMessage({ text: value });
         setInput("");
     };
@@ -186,6 +189,7 @@ export default function ChatBot() {
                     rows={1}
                     className="scrollbar-hide text-ink placeholder:text-ink-muted w-full min-h-[24px] max-h-[200px] resize-none overflow-y-auto bg-transparent py-1 font-light leading-relaxed outline-0"
                     placeholder="Ask a question..."
+                    maxLength={4000}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => {
@@ -197,17 +201,17 @@ export default function ChatBot() {
                 />
                 <button
                     type="submit"
-                    disabled={!input.trim()}
+                    disabled={!canSend}
                     aria-label="Send message"
                     className={
-                        !input.trim()
+                        !canSend
                             ? "mb-0.5 shrink-0 flex items-center justify-center w-9 h-9 rounded-xl cursor-not-allowed bg-surface-raised transition-colors duration-200"
                             : "mb-0.5 shrink-0 flex items-center justify-center w-9 h-9 rounded-xl cursor-pointer bg-ink hover:bg-white transition-colors duration-200"
                     }
                 >
                     <Image
-                        src={input.trim() ? "/images/arrow-up.webp" : "/images/arrow-up-light.webp"}
-                        className={input.trim() ? "opacity-100" : "opacity-30"}
+                        src={canSend ? "/images/arrow-up.webp" : "/images/arrow-up-light.webp"}
+                        className={canSend ? "opacity-100" : "opacity-30"}
                         width={16}
                         height={16}
                         alt="Submit"
