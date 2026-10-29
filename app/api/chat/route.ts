@@ -1,11 +1,15 @@
 import { openai } from "@ai-sdk/openai";
 import { streamText, UIMessage, convertToModelMessages, APICallError } from "ai";
 import { getVerseContext, ConversationTurn, TRANSLATION } from "@/lib/rag";
+import { getSessionEmail } from "@/lib/auth";
+import { isAllowed } from "@/lib/rate-limit";
 
 export const maxDuration = 30;
 // Removed edge runtime to support RAG pipeline
 
 const MAX_MESSAGE_CHARS = 4000;
+const MESSAGES_PER_MINUTE = 10;
+const MESSAGES_PER_DAY = 200;
 // older turns are dropped so long chats don't grow the cost of every reply
 const MAX_MODEL_MESSAGES = 20;
 
@@ -69,6 +73,22 @@ export async function POST(req: Request) {
             { error: "Proverbs Chat isn't configured to connect to its AI service yet. Please try again later." },
             { status: 500 }
         );
+    }
+
+    // middleware already rejects missing sessions; the email keys the per-user limits
+    const email = await getSessionEmail();
+    if (!email) {
+        return Response.json({ error: "Your session has expired. Please sign in again." }, { status: 401 });
+    }
+    const [underMinuteLimit, underDayLimit] = await Promise.all([
+        isAllowed(`chat:minute:${email}`, MESSAGES_PER_MINUTE, 60),
+        isAllowed(`chat:day:${email}`, MESSAGES_PER_DAY, 24 * 60 * 60),
+    ]);
+    if (!underDayLimit) {
+        return Response.json({ error: "You've reached today's message limit. Please come back tomorrow." }, { status: 429 });
+    }
+    if (!underMinuteLimit) {
+        return Response.json({ error: "You're sending messages quickly. Please wait a minute and try again." }, { status: 429 });
     }
 
     let messages: UIMessage[];

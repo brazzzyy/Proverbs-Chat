@@ -27,6 +27,8 @@ function StreamedText({ text }: { text: string }) {
 
 const COMPOSER_MAX_HEIGHT = 200;
 const SCROLL_FADE_RAMP_PX = 140;
+// within this distance of the bottom, streaming replies keep the view scrolled down
+const STICK_TO_BOTTOM_PX = 80;
 const DEFAULT_ERROR_MESSAGE = "Something went wrong reaching Proverbs Chat. Please try again in a moment.";
 
 // stream errors arrive as plain text; failed requests arrive as the route's JSON body
@@ -44,6 +46,8 @@ function readErrorMessage(error: Error | undefined): string {
 export default function ChatBot() {
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const stickToBottomRef = useRef(true);
+    const lastDistanceRef = useRef(0);
     const [fadeOpacity, setFadeOpacity] = useState(0);
     const [input, setInput] = useState('');
     const { messages, sendMessage, status, error, regenerate } = useChat();
@@ -136,20 +140,24 @@ export default function ChatBot() {
         setFadeOpacity(opacity);
     }, []);
 
-    const scrollToNewMessages = () => {
-        const el = scrollRef.current;
-        if (!el) return;
-        el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-    };
-
     useEffect(() => {
         if (!hasMessages) return;
 
         const el = scrollRef.current;
         if (!el) return;
 
+        // Scrolling away from the bottom means the reader took over, so stop following
+        // the reply; reaching the bottom again resumes. Our own scrolls only move down.
+        const onScroll = () => {
+            const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+            if (distance <= STICK_TO_BOTTOM_PX) stickToBottomRef.current = true;
+            else if (distance > lastDistanceRef.current) stickToBottomRef.current = false;
+            lastDistanceRef.current = distance;
+            updateScrollFade();
+        };
+
         updateScrollFade();
-        el.addEventListener("scroll", updateScrollFade, { passive: true });
+        el.addEventListener("scroll", onScroll, { passive: true });
 
         const content = el.firstElementChild;
         const resizeObserver = new ResizeObserver(updateScrollFade);
@@ -158,15 +166,24 @@ export default function ChatBot() {
         window.addEventListener("resize", updateScrollFade);
 
         return () => {
-            el.removeEventListener("scroll", updateScrollFade);
-            resizeObserver?.disconnect();
+            el.removeEventListener("scroll", onScroll);
+            resizeObserver.disconnect();
             window.removeEventListener("resize", updateScrollFade);
         };
     }, [hasMessages, updateScrollFade]);
 
     useEffect(() => {
         if (!hasMessages) return;
-        scrollToNewMessages();
+        const el = scrollRef.current;
+        if (!el) return;
+
+        // sending a message always jumps to it; streamed text only follows if the reader is at the bottom
+        const sentByUser = messages[messages.length - 1]?.role === 'user';
+        if (sentByUser) stickToBottomRef.current = true;
+        if (stickToBottomRef.current) {
+            el.scrollTo({ top: el.scrollHeight, behavior: sentByUser ? 'smooth' : 'auto' });
+        }
+
         // After scrolling to latest messages, hide the fade
         const t = setTimeout(updateScrollFade, 100);
         return () => clearTimeout(t);
