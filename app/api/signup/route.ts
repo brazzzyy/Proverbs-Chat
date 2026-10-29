@@ -3,46 +3,46 @@ import { createSessionToken } from "@/lib/auth";
 import bcrypt from "bcrypt";
 import { createClient } from "@supabase/supabase-js";
 
+const MIN_PASSWORD_LENGTH = 8;
+
 export async function POST(request: Request) {
 
     const supabase = createClient(
         process.env.SUPABASE_URL!,
-         process.env.SUPABASE_SERVICE_ROLE_KEY!
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
     try {
         const body = await request.json();
-        const email = body.email as string;
-        const password = body.password as string;
+        const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+        const password = typeof body.password === "string" ? body.password : "";
 
-        // Basic validation
-        if (!email || !password) {
-            return NextResponse.json({ error: "Missing credential fields "}, { status: 400});
+        // Basic validation (the form checks too, but requests can skip it)
+        if (!email || !email.includes("@")) {
+            return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
         }
-        // Hash/encrypt the password
-        const hashedPassword = await bcrypt.hash(password, 10); 
+        if (password.length < MIN_PASSWORD_LENGTH) {
+            return NextResponse.json({ error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters long.` }, { status: 400 });
+        }
 
-        // Append user's signup data to supabase
-        const { data, error } = await supabase
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const { error } = await supabase
             .from("users")
-            .insert([
-                { email, 
-                  password_hash: hashedPassword 
-                }
-            ]);
+            .insert({ email, password_hash: hashedPassword });
 
         if (error) {
-            console.error("Supabase insert error:", error);
-            return NextResponse.json({ error: error.message }, { status: 400 });
+            // unique_email constraint
+            if (error.code === "23505") {
+                return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
+            }
+            throw error;
         }
+
         await createSessionToken({ email });
-        return NextResponse.json({ message: "Sucess" }, { status: 200 });
-    } catch (err: unknown) {
-        if (err instanceof Error) {
-          console.error("Signup error:", err.message);
-          return NextResponse.json({ error: err.message }, { status: 500 });
-        }
-        console.error("Unknown signup error:", err);
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+        return NextResponse.json({ success: true });
+    } catch (err) {
+        console.error("Signup error:", err);
+        return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
     }
 }

@@ -4,7 +4,7 @@ import "./globals.css";
 
 const lexend = Lexend({
   subsets: ['latin'],
-  weight: ['100', '200', '300', '400', '500', '600', '700'],
+  weight: ['300', '400', '500'],
   variable: '--font-lexend',
 });
 
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     icon: "/images/favicon.webp",
     apple: "/images/apple-icon.webp",
   },
+  appleWebApp: { title: "Proverbs Chat" },
 };
 
 export default function RootLayout({
@@ -25,10 +26,6 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="scrollbar-hide">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="apple-mobile-web-app-title" content="MyWebSite" />
-      </head>
       <body className={`${lexend.variable} ${lexend.className} antialiased`}>
         {children}
       </body>

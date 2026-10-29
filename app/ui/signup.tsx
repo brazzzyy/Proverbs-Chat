@@ -7,38 +7,45 @@ import { useRouter } from "next/navigation";
 
 export default function SignUp() {
 
-    const [error, setError] = useState("");
+    const [passwordError, setPasswordError] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        setErrorMsg("");
 
         const formData = new FormData(event.currentTarget);
-        const pass = formData.get("password") as string;
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
 
-        if (!pass || pass.length < 8){
-            setError("Error");
+        if (!password || password.length < 8) {
+            setPasswordError(true);
             return;
-        } else {
-            setError("");
         }
+        setPasswordError(false);
+        setLoading(true);
 
         // Sending form data in the POST request to server side
         try {
-            const formDataObj = Object.fromEntries(new FormData(event.currentTarget).entries());
             const res = await fetch("/api/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formDataObj),
+                body: JSON.stringify({ email, password }),
             });
 
             if (!res.ok) {
-                throw new Error("Signup Failed");
-            } else {
-                router.push("/");
+                const data = await res.json().catch(() => ({}));
+                setErrorMsg(data.error || "Sign up failed. Please try again.");
+                setLoading(false);
+                return;
             }
-        } catch(err) {
-            console.log(`Error: ${err}`);
+            router.push("/");
+        } catch (err) {
+            console.error(err);
+            setErrorMsg("Something went wrong. Please try again.");
+            setLoading(false);
         }
     }
 
@@ -65,15 +72,18 @@ export default function SignUp() {
                 <div className="flex flex-col gap-1.5">
                     <label htmlFor="password" className="text-ink-muted text-xs font-medium uppercase tracking-wide">Password</label>
                     <input id="password" className="bg-signupboxcolor px-3.5 py-2.5 rounded-lg outline-0 font-light border border-transparent focus:border-white/20 transition-colors duration-200 placeholder:text-ink-muted" type="password" name="password" placeholder="At least 8 characters" required />
-                    {error == "Error" && (<p className="text-xs font-light text-red-400">Password must be at least 8 characters long</p>)}
+                    {passwordError && (<p className="text-xs font-light text-red-400">Password must be at least 8 characters long</p>)}
                 </div>
             </div>
 
+            {errorMsg && <p className="text-red-400 text-sm mt-3">{errorMsg}</p>}
+
             <button
                 type="submit"
-                className="mt-5 w-full h-11 rounded-lg font-medium text-background bg-ink hover:bg-white cursor-pointer transition-colors duration-200"
+                disabled={loading}
+                className="mt-5 w-full h-11 rounded-lg font-medium text-background bg-ink hover:bg-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
-                Create account
+                {loading ? "Creating account..." : "Create account"}
             </button>
 
             <div className="w-full h-px bg-bordercolor my-6" />

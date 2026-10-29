@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 function LogOutIcon() {
     return (
@@ -26,26 +25,13 @@ function LogOutIcon() {
 }
 
 export default function LogoutButton({ showLabel = false }: { showLabel?: boolean }) {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const router = useRouter();
-    const pathname = usePathname();
-    const onProtectedHome = pathname === "/";
 
-    useEffect(() => {
-        const checkSession = async () => {
-            const res = await fetch("/api/session");
-            const data = await res.json();
-            setIsLoggedIn(data.isLoggedIn);
-        };
-
-        checkSession();
-    }, []);
-
+    // only rendered on the home page, which middleware already restricts to signed-in users
     const handleLogout = async () => {
         try {
             const res = await fetch("/api/logout", { method: "POST" });
             if (res.ok) {
-                setIsLoggedIn(false);
                 router.push("/login");
             } else {
                 console.error("Logout failed");
@@ -54,8 +40,6 @@ export default function LogoutButton({ showLabel = false }: { showLabel?: boolea
             console.error("Error logging out:", err);
         }
     };
-
-    if (!onProtectedHome && !isLoggedIn) return null;
 
     return (
         <button
