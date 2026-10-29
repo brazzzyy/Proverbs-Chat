@@ -49,3 +49,14 @@ export async function decrypt(input: string): Promise<SessionPayload> {
 
     return payload as SessionPayload;
 }
+
+// Email of the signed-in user, or null when there's no valid session.
+export async function getSessionEmail(): Promise<string | null> {
+    const token = (await cookies()).get("session")?.value;
+    if (!token) return null;
+    try {
+        return (await decrypt(token)).user.email;
+    } catch {
+        return null;
+    }
+}

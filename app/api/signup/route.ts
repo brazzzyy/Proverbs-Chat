@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { createSessionToken } from "@/lib/auth";
 import bcrypt from "bcrypt";
 import { createClient } from "@supabase/supabase-js";
+import { isAllowed, clientIp } from "@/lib/rate-limit";
 
 const MIN_PASSWORD_LENGTH = 8;
 
 export async function POST(request: Request) {
+
+    // limits throwaway accounts: 5 signups per hour per IP
+    if (!(await isAllowed(`signup:${clientIp(request)}`, 5, 60 * 60))) {
+        return NextResponse.json({ error: "Too many accounts created from this network. Please try again later." }, { status: 429 });
+    }
 
     const supabase = createClient(
         process.env.SUPABASE_URL!,
