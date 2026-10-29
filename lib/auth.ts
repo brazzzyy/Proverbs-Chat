@@ -11,6 +11,8 @@ const SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
 // Define the structure of the session payload
 interface SessionPayload extends Record<string, unknown> {
     user: { email: string };
+    jti?: string;
+    exp?: number;
 }
 
 export async function createSessionToken(user: { email: string }) {
@@ -29,6 +31,7 @@ export async function createSessionToken(user: { email: string }) {
 export async function encrypt(payload: SessionPayload) {
     return await new SignJWT(payload)
         .setProtectedHeader({ alg: 'HS256' })
+        .setJti(crypto.randomUUID())
         .setIssuedAt()
         .setExpirationTime('24 hours')
         .sign(key);
@@ -42,12 +45,33 @@ export async function decrypt(input: string): Promise<SessionPayload> {
     if (
         !payload.user ||
         typeof payload.user !== "object" ||
-        !("email" in payload.user)
+        !("email" in payload.user) ||
+        !payload.jti
       ) {
         throw new Error("Invalid session");
     }
 
     return payload as SessionPayload;
+}
+
+// Verifies the token and checks it wasn't revoked by logging out (see app/api/logout).
+// Uses a plain REST call because this runs in Edge middleware, where supabase-js is heavy.
+export async function verifySession(token: string): Promise<SessionPayload> {
+    const session = await decrypt(token);
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    try {
+        const res = await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/revoked_sessions?select=jti&jti=eq.${encodeURIComponent(session.jti!)}`,
+            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }, cache: "no-store" }
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if ((await res.json()).length > 0) throw new Error("Session revoked");
+    } catch (err) {
+        if (err instanceof Error && err.message === "Session revoked") throw err;
+        // fail open like the rate limiter: an auth-db outage shouldn't sign everyone out
+        console.error("Session revocation check failed, allowing session:", err);
+    }
+    return session;
 }
 
 // Email of the signed-in user, or null when there's no valid session.

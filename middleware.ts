@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { decrypt } from "@/lib/auth";
+import { verifySession } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
     const token = request.cookies.get("session")?.value;
 
     try {
         if (!token) throw new Error("No session");
-        await decrypt(token);
+        await verifySession(token);
         return NextResponse.next();
     } catch {
         // API callers get a JSON error the chat UI can show; pages go to login
