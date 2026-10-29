@@ -27,6 +27,19 @@ function StreamedText({ text }: { text: string }) {
 
 const COMPOSER_MAX_HEIGHT = 200;
 const SCROLL_FADE_RAMP_PX = 140;
+const DEFAULT_ERROR_MESSAGE = "Something went wrong reaching Proverbs Chat. Please try again in a moment.";
+
+// stream errors arrive as plain text; failed requests arrive as the route's JSON body
+function readErrorMessage(error: Error | undefined): string {
+    const raw = error?.message?.trim();
+    if (!raw) return DEFAULT_ERROR_MESSAGE;
+    try {
+        const parsed = JSON.parse(raw);
+        return typeof parsed?.error === 'string' ? parsed.error : DEFAULT_ERROR_MESSAGE;
+    } catch {
+        return raw;
+    }
+}
 
 export default function ChatBot() {
     const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -252,7 +265,7 @@ export default function ChatBot() {
                         {hasError && (
                             <div className={`animate-rise flex flex-col gap-2 w-fit max-w-[85%] lg:max-w-[78%] self-start py-1 ${lastMessage?.role === 'user' ? 'mt-9' : 'mt-2'}`}>
                                 <p className="text-sm font-light leading-relaxed text-ink-muted">
-                                    Something went wrong reaching Proverbs Chat. Please try again in a moment.
+                                    {readErrorMessage(error)}
                                 </p>
                                 <button
                                     type="button"
