@@ -17,7 +17,7 @@ Visit: https://proverbs-chat.vercel.app/ to see the project in action!
 
 ### Verse retrieval (RAG)
 
-Every verse of the BSB (31,086 verses) is stored in Postgres with a 512-dimension embedding and an HNSW index for fast similarity search. When someone sends a message, `lib/rag.ts`:
+Every verse of the BSB Bible (31,086 verses) is stored in Postgres with a 512-dimension embedding and an HNSW index for fast similarity search. When someone sends a message, `lib/rag.ts`:
 
 1. **Skips small talk instantly.** Greetings, thanks, "ok" and emoji-only messages never trigger a search.
 2. **Plans the search.** A small model reads the message plus the last few chat turns and decides whether Scripture speaks to it. Off-topic requests like coding or trivia get no verses. Short follow-ups like "yes" or "what about my brother?" are understood from context.
@@ -28,7 +28,7 @@ If any step fails, the chat still answers, just without verses.
 
 ### Chat
 
-The chat streams replies and adapts their length: a line or two for light messages, a few short paragraphs for heavier ones. It redirects off-topic requests kindly and gives crisis resources (988 in the US) when someone mentions self-harm or danger. Only the last 20 messages are sent to the model, which keeps the cost of long conversations down.
+The chat streams replies and adapts their length: a line or two for light messages, a few short paragraphs for heavier ones. It redirects off-topic requests kindly. Only the last 20 messages are sent to the model, which keeps the cost of long conversations down.
 
 ### Accounts and security
 
@@ -36,53 +36,12 @@ The chat streams replies and adapts their length: a line or two for light messag
 - Middleware protects the chat page and `/api/chat`.
 - Logging out revokes the session server-side, so a copied cookie stops working immediately.
 - Rate limits, shared across all serverless instances through Postgres:
-
   | Action | Limit |
   |---|---|
   | Chat | 10 messages per minute and 200 per day, per account |
   | Sign-in | 10 attempts per 15 minutes, per IP address |
   | Sign-up | 5 accounts per hour, per IP address |
 - Row-level security on every table. The Bible tables are public read-only; account tables are only reachable with the server-side service-role key.
-
-## Running Locally
-
-Requires Node 20.6+ (for `--env-file`) and pnpm 12.
-
-```bash
-pnpm install
-pnpm dev
-```
-
-Create a `.env.local` with:
-
-| Variable | Used for |
-|---|---|
-| `OPENAI_API_KEY` | Chat, search planning and embeddings |
-| `JWT_SECRET` | Signing session cookies (the app won't start without it) |
-| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Accounts database (server-side only) |
-| `BIBLE_SUPABASE_URL`, `BIBLE_SUPABASE_PUBLISHABLE_KEY` | Reading verses from the Bible database |
-| `BIBLE_DATABASE_URL` | Seed scripts only (Bible database connection string) |
-| `POSTGRES_URL_NON_POOLING` | `db/apply.mjs` only (accounts database connection string) |
-
-`BIBLE_DATABASE_URL` and `POSTGRES_URL_NON_POOLING` are only needed on your machine for setup. Don't add them to Vercel.
-
-### Setting up the databases
-
-**Bible database:** load the translation, then embed it. Embedding costs about $0.02 in OpenAI usage.
-
-```bash
-node --env-file=.env.local seed/import.mjs   # creates books/verses tables, RLS and the match_verses search function
-node --env-file=.env.local seed/embed.mjs    # embeds every verse and builds the vector index
-```
-
-To switch translations, drop a dump from [scrollmapper/bible_databases](https://github.com/scrollmapper/bible_databases) into `seed/` (MySQL or Postgres format), update `DUMP_FILE` in `seed/import.mjs` and `TRANSLATION` in `lib/rag.ts`, and rerun both scripts.
-
-**Accounts database:** it expects a `users` table (`id`, `email` unique, `password_hash`, `created_at`). Then apply the rate-limit and session tables:
-
-```bash
-node --env-file=.env.local db/apply.mjs db/rate-limits.sql
-node --env-file=.env.local db/apply.mjs db/revoked-sessions.sql
-```
 
 ## Project Structure
 
